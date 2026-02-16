@@ -169,8 +169,8 @@ h1 {
 </div>
 
 <script>
-// 7 days from page load
-const launchDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).getTime();
+// Set target: 23 Feb 2026, 18:00 Danish time (UTC+1)
+const launchDate = new Date('2026-02-23T18:00:00+01:00').getTime();
 
 const interval = setInterval(() => {
   const now = new Date().getTime();
