@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bloomera — Launching Soon</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #F6F1EB;
+  --glow: #EFE2D3;
+  --box: #F2EBDD;
+  --text: #5f4632;
+  --sub: #C08055;
+}
+
+* {
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Manrope", sans-serif;
+}
+
+body {
+  height:100vh;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:var(--text);
+  overflow:hidden;
+  position:relative;
+}
+
+/* soft background glow */
+.blur {
+  position:absolute;
+  width:500px;
+  height:500px;
+  border-radius:50%;
+  background:var(--glow);
+  filter:blur(25px);
+  opacity:.8;
+  z-index:0;
+}
+.top { top:-20%; right:-20%; }
+.bottom { bottom:-20%; left:-20%; }
+
+h1 {
+  font-size:32px;
+  font-weight:700;
+  margin-bottom:8px;
+  z-index:1;
+}
+
+.subtitle {
+  font-size:14px;
+  font-weight:600;
+  color:var(--sub);
+  margin-bottom:40px;
+  z-index:1;
+}
+
+/* countdown row */
+.countdown {
+  display:flex;
+  gap:18px;
+  z-index:1;
+}
+
+.time-box {
+  background:var(--box);
+  padding:20px 22px;
+  border-radius:16px;
+  min-width:85px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.number {
+  font-size:26px;
+  font-weight:700;
+}
+
+.label {
+  font-size:11px;
+  margin-top:6px;
+  font-weight:600;
+  opacity:.6;
+}
+
+/* responsive */
+@media(max-width:480px){
+  .countdown {
+    gap:10px;
+  }
+  .time-box {
+    padding:16px 14px;
+    min-width:70px;
+  }
+  .number {
+    font-size:20px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="blur top"></div>
+<div class="blur bottom"></div>
+
+<h1>Bloomera is launching</h1>
+<div class="subtitle">your focus perfumerie drops soon</div>
+
+<div class="countdown">
+  <div class="time-box">
+    <div class="number" id="days">0</div>
+    <div class="label">DAYS</div>
+  </div>
+  <div class="time-box">
+    <div class="number" id="hours">0</div>
+    <div class="label">HOURS</div>
+  </div>
+  <div class="time-box">
+    <div class="number" id="minutes">0</div>
+    <div class="label">MINUTES</div>
+  </div>
+  <div class="time-box">
+    <div class="number" id="seconds">0</div>
+    <div class="label">SECONDS</div>
+  </div>
+</div>
+
+<script>
+// 7 days from page load
+const launchDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).getTime();
+
+const interval = setInterval(() => {
+  const now = new Date().getTime();
+  const distance = launchDate - now;
+
+  if (distance <= 0) {
+    clearInterval(interval);
+    document.body.innerHTML = `
+      <h1>We're Live</h1>
+      <div class="subtitle">Bloomera is officially open.</div>
+    `;
+    return;
+  }
+
+  const days = Math.floor(distance / (1000*60*60*24));
+  const hours = Math.floor((distance % (1000*60*60*24)) / (1000*60*60));
+  const minutes = Math.floor((distance % (1000*60*60)) / (1000*60));
+  const seconds = Math.floor((distance % (1000*60)) / 1000);
+
+  document.getElementById("days").textContent = days;
+  document.getElementById("hours").textContent = hours;
+  document.getElementById("minutes").textContent = minutes;
+  document.getElementById("seconds").textContent = seconds;
+
+}, 1000);
+</script>
+
+</body>
+</html>
