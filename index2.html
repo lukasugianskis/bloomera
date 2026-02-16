@@ -86,6 +86,10 @@
 				}
 				.top-title {
 					font-size: clamp(15px, 4vw, 18px);
+					max-width: calc(100vw - 180px);
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
 				}
 				.top-row {
 					gap: 10px;
@@ -94,6 +98,177 @@
 				.top-btn.right {
 					padding: 9px 14px;
 					font-size: 11px;
+				}
+				
+				/* Flip Card - Responsive sizing */
+				.flip-card {
+					width: min(350px, 90vw);
+					height: min(470px, 65vh);
+				}
+				
+				/* Center Frame - Follow flip-card container */
+				.center-frame {
+					height: 100%;
+				}
+				
+				.center-frame.back {
+					height: 100%;
+				}
+				
+				/* Scale heading fonts */
+				.center-frame h1 {
+					font-size: clamp(20px, 5.5vw, 25px);
+				}
+				
+				.center-frame h2 {
+					font-size: clamp(11px, 3vw, 12px);
+				}
+				
+				/* Reduce gaps and padding for options and notes */
+				.option-list {
+					gap: 10px;
+					margin-top: 22px;
+				}
+				
+				.option-btn {
+					padding: 10px 14px;
+				}
+				
+				.notes-list {
+					gap: 10px;
+					margin-top: 16px;
+				}
+				
+				.note-item {
+					padding: 10px 14px;
+				}
+				
+				.center-frame.back .note-item {
+					padding: 9px 12px;
+				}
+				
+				/* Bottom Nav - Remove scale, reduce padding */
+				.bottom-nav {
+					transform: translateX(-50%) scale(1);
+					bottom: 20px;
+				}
+				
+				.nav-item {
+					padding: 8px 12px;
+					font-size: 11px;
+				}
+				
+				.nav-item i {
+					font-size: 14px;
+				}
+				
+				/* Flip Hints - Reposition below card */
+				.flip-hint {
+					top: auto;
+					bottom: -35px;
+					left: 50%;
+					right: auto;
+					transform: translateX(-50%);
+				}
+				
+				.flip-hint.left {
+					left: 50%;
+					right: auto;
+					transform: translateX(-50%);
+				}
+				
+				/* Start Button - Position from bottom */
+				.start-btn {
+					top: auto;
+					bottom: 90px;
+				}
+				
+				.start-btn.show {
+					transform: translateX(-50%);
+				}
+				
+				/* Study Track - Position relative to start button */
+				.study-track {
+					bottom: 130px;
+				}
+				
+				/* Blend Screen - Scale title and reduce graphic */
+				.blend-title {
+					font-size: clamp(36px, 10vw, 56px);
+				}
+				
+				.blend-graphic {
+					width: min(260px, 70vw);
+					height: min(320px, 50vh);
+				}
+				
+				.blend-screen {
+					gap: 12px;
+				}
+				
+				/* Blank Frame - Responsive sizing */
+				.blank-frame {
+					width: min(350px, 90vw);
+					height: min(470px, 68vh);
+				}
+				
+				/* Ticket - Scale fonts and add overflow safety */
+				.ticket {
+					overflow-y: auto;
+				}
+				
+				.ticket h3 {
+					font-size: clamp(22px, 6vw, 26px);
+				}
+				
+				.ticket .rows {
+					font-size: clamp(11px, 3vw, 12px);
+				}
+				
+				/* Shrink cutout circles on small screens */
+				.blank-frame::before,
+				.blank-frame::after {
+					width: 48px;
+					height: 48px;
+				}
+				
+				.blank-frame::before {
+					left: -24px;
+				}
+				
+				.blank-frame::after {
+					right: -24px;
+				}
+			}
+			
+			/* Extra small screens */
+			@media (max-width: 360px) {
+				.notify-dialog {
+					min-width: auto;
+					width: calc(100vw - 40px);
+				}
+			}
+			
+			/* Short screens */
+			@media (max-height: 700px) {
+				.flip-card {
+					height: min(470px, 60vh);
+				}
+				
+				.blank-frame {
+					height: min(470px, 60vh);
+				}
+				
+				.blend-graphic {
+					height: min(320px, 45vh);
+				}
+				
+				.start-btn {
+					bottom: 80px;
+				}
+				
+				.study-track {
+					bottom: 115px;
 				}
 			}
 
