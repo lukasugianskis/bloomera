@@ -1,40 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bloomera</title>
-    <style>
-        .box {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 5px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            vertical-align: top;
-            transition: background-color 0.3s;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Bloomera — Launching Soon</title>
 
-        .box:hover {
-            background-color: #f1f1f1;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
 
-        .text {
-            margin-left: 15px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="box">Box 1</div>
-        <div class="text">Some text related to Box 1</div>
-        <div class="box">Box 2</div>
-        <div class="text">Some text related to Box 2</div>
-        <div class="box">Box 3</div>
-        <div class="text">Some text related to Box 3</div>
-    </div>
-</body>
-</html>
+<style>
+:root {
+  --bg: #F6F1EB;
+  --glow: #EFE2D3;
+  --box: #F3EBDD;
+  --box-border: #E8DCCD;
+  --text: #5f4632;
+  --sub: #C08055;
+}
+
+* {
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Manrope", sans-serif;
+}
+
+html, body {
+  height:100%;
+  overflow:hidden;
+  touch-action:manipulation;
+}
+
+body {
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:var(--text);
+  position:relative;
+}
+
+/* Soft background blur */
+.blur {
+  position:absolute;
+  width:500px;
+  height:500px;
+  border-radius:50%;
+  background:var(--glow);
+  filter:blur(30px);
+  opacity:.8;
+  z-index:0;
+}
+.top { top:-20%; right:-20%; }
+.bottom { bottom:-20%; left:-20%; }
+
+h1 {
+  font-size:34px;
+  font-weight:700;
+  margin-bottom:6px;
+  z-index:1;
+}
+
+.subtitle {
+  font-size:14px;
+  font-weight:600;
+  color:var(--sub);
+  margin-bottom:28px; /* closer to boxes */
+  z-index:1;
+}
+
+/* Countdown */
+.countdown {
+  display:flex;
+  gap:18px;
+  z-index:1;
+}
+
+/* More Bloomera-style boxes */
+.time-box {
+  background:var(--box);
+  border:1px solid var(--box-border);
+  padding:20px 24px;
+  border-radius:18px;
+  min-width:90px;
+  box-shadow:0 8px 18px rgba(120, 85, 60, 0.05);
+  transition:0.2s ease;
+}
+
+.time-box:hover {
+  transform:translateY(-3px);
+  box-shadow:0 12px 24px rgba(120, 85, 60, 0.08);
+}
+
+.number {
+  font-size:28px;
+  font-weight:700;
+  color:#6
