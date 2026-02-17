@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- viewport: prevent zooming out & ensure proper scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Bloomera - Your Focus Perfumerie</title>
+    <link rel="icon" type="image/x-icon" href="/trybloomera.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            --bg: #F6F1EB;
+            --glow: #EFE2D3;
+            --pill: #8b532f;
+            --pill-text: #f7f1ea;
+            --ring-outer: #EAE1D5;
+            --ring-inner: #F1EADE;
+            --text: #5f4632;
+            --exit-duration: 0.65s;
+            --exit-easing: cubic-bezier(0.4, 0.0, 0.2, 1);
+            --exit-distance: -30px;
+            --ui-scale-w: clamp(0.72, 100vw / 480, 1);
+            --ui-scale-h: clamp(0.72, 100vh / 820, 1);
+            --ui-scale: min(var(--ui-scale-w), var(--ui-scale-h));
+            --card-w: min(350px, 92vw);
+            --card-h: min(470px, 72vh);
+            --nav-bottom: clamp(14px, 4vh, 25px);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background: var(--bg);
+            overflow: hidden;
+            position: relative;
+            font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+            color: var(--text);
+        }
+
+        /* smoother touch on all interactive elements */
+        a, button, .nav-item, .option-btn, .note-btn, .start-btn, .blend-btn, .blend-stop, .notify-close, .notify-submit, .top-btn {
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .blur-circle {
+            position: absolute;
+            width: clamp(360px, 80vw, 520px);
+            height: clamp(360px, 80vw, 520px);
+            border-radius: 50%;
+            background: var(--glow);
+            filter: blur(20px);
+            opacity: 0.95;
+        }
+
+        .blur-circle.top-right {
+            top: -18%;
+            right: -18%;
+        }
+
+        .blur-circle.bottom-left {
+            bottom: -18%;
+            left: -18%;
+        }
+
+        .page {
+            position: relative;
+            height: 100%;
+            padding: 24px 36px;
+        }
+
+        /* ----- small screen adjustments (responsive) ----- */
+        @media (max-width: 540px) {
+            .page {
+                padding: 16px 16px 0;
+            }
+
+            /* 1. hide top title */
+            .top-title {
+                display: none;
+            }
+
+            /* 2. flip hint: only show icon (>> / <<), hide text via font-size:0 */
+            .flip-hint {
+                font-size: 0;               /* hides text */
+                white-space: nowrap;
+            }
+            .flip-hint i {
+                font-size: 24px;              /* make icon visible and larger */
+                margin: 0 6px;
+            }
+            /* adjust positioning so hint doesn't overflow */
+            .flip-hint.left i {
+                margin-left: 0;
+            }
+            .flip-hint.right i {
+                margin-right: 0;
+            }
+
+            .top-row {
+                gap: 10px;
+                justify-content: space-between;
+            }
+
+            .top-btn.left, .top-btn.right {
+                padding: 9px 14px;
+                font-size: 11px;
+            }
+
+            .option-list, .notes-list {
+                width: 86%;
+            }
+
+            .bottom-nav {
+                transform: translateX(-50%) scale(1);
+            }
+
+            .nav-item {
+                padding: 9px 12px;
+                font-size: 11px;
+                gap: 5px;
+            }
+
+            .nav-item i {
+                font-size: 14px;
+            }
+
+            .blend-title {
+                font-size: clamp(34px, 11vw, 50px);
+            }
+
+            .blend-progress {
+                width: min(260px, 80vw);
+            }
+
+            .blend-graphic {
+                width: min(240px, 70vw);
+                height: min(300px, 60vh);
+            }
+
+            /* prevent start button from overlapping study time */
+            /* increase gap between card bottom and start button */
+            .start-btn {
+                top: calc(50% + (var(--card-h) / 2) + 32px); /* more space */
+            }
+            /* optional: slightly raise study track if needed (but seems fine) */
+            .study-track {
+                bottom: calc(var(--nav-bottom) + 72px); /* move up a bit if overlap occurs */
+            }
+        }
+
+        /* extra small height tweak */
+        @media (max-height: 680px) {
+            .start-btn {
+                top: calc(50% + (var(--card-h) / 2) + 28px);
+            }
+            .study-track {
+                bottom: calc(var(--nav-bottom) + 68px);
+            }
+        }
+
+        @media (max-height: 700px) {
+            :root {
+                --card-h: min(430px, 66vh);
+            }
+
+            .circle-row {
+                margin-top: 20px;
+            }
+
+            .option-list {
+                margin-top: 20px;
+            }
+
+            .center-frame h1 {
+                margin-top: 18px;
+            }
+        }
+
+        .top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            z-index: 1;
+        }
+
+        .top-title {
+            position: absolute;
+            left: 50%;
+            top: 26px;
+            transform: translateX(-50%);
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.2px;
+            z-index: 1;
+            transition: transform var(--exit-duration) var(--exit-easing), 
+                       opacity var(--exit-duration) var(--exit-easing);
+        }
+
+        .top-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            text-decoration: none;
+            background: var(--pill);
+            color: var(--pill-text);
+            position: relative;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            transition: transform var(--exit-duration) var(--exit-easing), 
+                       opacity var(--exit-duration) var(--exit-easing);
+        }
+
+        .top-btn.left {
+            padding: 10px 18px;
+            font-size: 12px;
+        }
+
+        .top-btn.left::before,
+        .top-btn.left::after {
+            content: "";
+            position: absolute;
+            border-radius: 999px;
+            z-index: -1;
+        }
+
+        .top-btn.left::before {
+            inset: -4px;
+            background: var(--ring-outer);
+        }
+
+        .top-btn.left::after {
+            inset: -3px;
+            background: var(--ring-inner);
+        }
+
+        .top-btn.left i {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .top-btn.right {
+            padding: 10px 18px;
+            font-size: 12px;
+            border-radius: 10px;
+            gap: 10px;
+        }
+
+        .top-btn.right i {
+            font-size: 16px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            left: 50%;
+            bottom: var(--nav-bottom);
+            transform: translateX(-50%) scale(1.1);
+            transform-origin: center;
+            z-index: 1;
+            transition: transform var(--exit-duration) var(--exit-easing), 
+                       opacity var(--exit-duration) var(--exit-easing);
+        }
+
+        .nav-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 1px;
+            padding: 3px;
+            border-radius: 999px;
+            background: var(--ring-inner);
+            border: 1px solid var(--ring-outer);
+            box-shadow: 0 6px 16px rgba(90, 64, 44, 0.12);
+            position: relative;
+        }
+
+        .nav-highlight {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            height: calc(100% - 6px);
+            border-radius: 999px;
+            background: var(--pill);
+            box-shadow: 0 2px 8px rgba(139, 83, 47, 0.25);
+            transition: transform 0.34s cubic-bezier(0.28, 1.05, 0.5, 1),
+                       width 0.34s cubic-bezier(0.28, 1.05, 0.5, 1);
+            pointer-events: none;
+        }
+
+        .nav-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #C08055;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.15s ease;
+            position: relative;
+            z-index: 1;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: #A66947;
+        }
+
+        .nav-item i {
+            font-size: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .nav-item.active,
+        .nav-item.bounce-active {
+            color: #C08055;
+            font-weight: 600;
+        }
+
+        .nav-item.is-highlighted {
+            color: var(--pill-text);
+            font-weight: 600;
+        }
+
+        /* Coming-soon notification */
+        .notify-overlay {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 3;
+        }
+
+        .notify-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .notify-dialog {
+            background: #F6F1E8;
+            border-radius: 18px;
+            border: 1px solid var(--ring-outer);
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
+            padding: 22px 22px 18px;
+            min-width: 280px;
+            max-width: 320px;
+            position: relative;
+            color: var(--text);
+        }
+
+        .notify-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            cursor: pointer;
+            color: #A37F68;
+            font-size: 16px;
+        }
+
+        .notify-title {
+            font-weight: 700;
+            font-size: 17px;
+            margin: 4px 0 6px;
+            color: var(--text);
+        }
+
+        .notify-text {
+            margin: 0 0 10px;
+            color: #9A7C66;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .notify-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .notify-input {
+            flex: 1;
+            border-radius: 12px;
+            border: 1px solid #E1D2C3;
+            padding: 10px 12px;
+            font-size: 13px;
+            background: #FBF7F1;
+            color: var(--text);
+            outline: none;
+            box-shadow: inset 0 1px 0 rgba(0,0,0,0.02);
+        }
+
+        .notify-input:focus {
+            border-color: #C9AA93;
+            box-shadow: 0 0 0 2px rgba(201,170,147,0.2);
+        }
+
+        .notify-submit {
+            border: none;
+            border-radius: 12px;
+            background: var(--pill);
+            color: var(--pill-text);
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(139,83,47,0.16);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .notify-submit:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 10px rgba(139,83,47,0.12);
+        }
+
+        .notify-note {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #B19683;
+            font-weight: 600;
+        }
+
+        .flip-card {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -44%);
+            width: var(--card-w);
+            height: var(--card-h);
+            perspective: 1200px;
+            z-index: 0;
+            user-select: none;
+            cursor: default;
+            opacity: 0;
+            transition: transform var(--exit-duration) var(--exit-easing), 
+                       opacity var(--exit-duration) var(--exit-easing);
+        }
+
+        .flip-card.loaded {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+            transition: transform 0.6s ease, opacity 0.6s ease;
+        }
+
+        .flip-card.raised {
+            transform: translate(-50%, -56%);
+        }
+
+        .flip-card.lowered {
+            transform: translate(-50%, -50%);
+        }
+
+        .flip-card.can-flip {
+            cursor: grab;
+        }
+
+        .flip-card.dragging {
+            cursor: grabbing;
+        }
+
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.7s ease;
+            transform-style: preserve-3d;
+        }
+
+        .flip-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .center-frame {
+            position: absolute;
+            inset: 0;
+            background: #F6F1E8;
+            border-radius: 20px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            backface-visibility: hidden;
+            padding-top: 4px;
+            height: 100%;
+            transition: transform var(--exit-duration) var(--exit-easing), 
+                       opacity var(--exit-duration) var(--exit-easing);
+        }
+
+        .center-frame.back {
+            transform: rotateY(180deg);
+            height: 100%;
+        }
+
+        .center-divider {
+            width: 80%;
+            height: 1.5px;
+            margin: 22px 0 0;
+            background: repeating-linear-gradient(
+                to right,
+                #C08055 0px,
+                #C08055 8px,
+                transparent 8px,
+                transparent 12px
+            );
+        }
+
+        .option-list {
+            width: 75%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 28px;
+            margin-bottom: 5px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #F2EBDD;
+            border-radius: 12px;
+            color: #593319;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            opacity: 0;
+            transform: translateX(-8px);
+        }
+
+        .loaded .option-btn {
+            animation: optionIn 0.45s ease forwards;
+        }
+
+        .loaded .option-btn:nth-child(1) { animation-delay: 0.1s; }
+        .loaded .option-btn:nth-child(2) { animation-delay: 0.2s; }
+        .loaded .option-btn:nth-child(3) { animation-delay: 0.3s; }
+        .loaded .notes-list .item:nth-child(1) { animation-delay: 0.1s; }
+        .loaded .notes-list .note-item:nth-child(2) { animation-delay: 0.2s; }
+        .loaded .notes-list .note-item:nth-child(3) { animation-delay: 0.3s; }
+        .loaded .notes-list .note-item:nth-child(4) { animation-delay: 0.4s; }
+
+        .note-item {
+            opacity: 0;
+            transform: translateX(-8px);
+            animation: none;
+        }
+
+        .loaded .note-item {
+            animation: optionIn 0.45s ease forwards;
+        }
+
+        @keyframes optionIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .option-btn:hover {
+            background: #F2EBDD;
+        }
+
+        .option-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0px 0 #E6DACB;
+        }
+
+        .option-btn .check {
+            color: #C08055;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .option-btn:hover {
+            background: #EFE4D6;
+        }
+
+        .option-btn.selected {
+            background: #EFE4D6;
+            box-shadow: 0 0px 0 #EBE2D1;
+            transform: translateY(5px);
+        }
+
+        .option-btn.selected .check {
+            opacity: 1;
+        }
+
+        .flip-hint {
+            position: absolute;
+            top: 50%;
+            right: -140px;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #99806B;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .flip-card.flipping .flip-hint {
+            opacity: 0 !important;
+        }
+
+        .flip-hint.fade-out {
+            opacity: 0;
+        }
+
+        .flip-hint.left {
+            right: auto;
+            left: -140px;
+        }
+
+        .flip-hint.ready {
+            opacity: 1;
+        }
+
+        .flip-hint i {
+            color: #C08055;
+            font-size: 14px;
+        }
+
+        .option-btn strong {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .option-btn span {
+            display: block;
+            font-size: 11px;
+            color: #99806B;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .notes-list {
+            width: 78%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .center-frame.back .notes-list {
+            margin-top: 16px;
+            gap: 10px;
+        }
+
+        .note-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #F2EBDD;
+            border-radius: 12px;
+            color: #6B4B34;
+            font-weight: 600;
+        }
+
+        .center-frame.back .note-item {
+            padding: 10px 14px;
+        }
+
+        .center-frame.back .circle-row {
+            margin-top: 30px;
+        }
+
+        .note-item strong {
+            font-size: 14px;
+        }
+
+        .note-item small {
+            display: block;
+            font-size: 11px;
+            color: #9A7C66;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .note-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #9A7C66;
+            font-weight: 700;
+        }
+
+        .study-track {
+            position: fixed;
+            left: 50%;
+            bottom: calc(var(--nav-bottom) + 64px);
+            transform: translateX(-50%);
+            color: #9A7C66;
+            font-weight: 600;
+            font-size: 12px;
+            z-index: 1;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform var(--exit-duration) var(--exit-easing), 
+                       opacity var(--exit-duration) var(--exit-easing);
+        }
+
+        .study-track.show {
+            opacity: 1;
+        }
+
+        .study-track .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .note-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 1px solid #E1D2C3;
+            background: #F7EFE4;
+            color: #9A7C66;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 2px 0 #E6DACB;
+        }
+
+        .note-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 0 #E6DACB;
+        }
+
+        .note-count {
+            min-width: 10px;
+            text-align: center;
+        }
+
+        .circle-row {
+            display: flex;
+            gap: 9px;
+            margin-top: 30px;
+        }
+
+        .circle-row span {
+            width: 3.5px;
+            height: 3.5px;
+            border-radius: 50%;
+            background: #957B68;
+        }
+
+        .start-btn {
+            position: fixed;
+            left: 50%;
+            top: calc(50% + (var(--card-h) / 2) + 18px);
+            transform: translateX(-50%);
+            padding: 14px 20px;
+            border-radius: 12px;
+            background: var(--pill);
+            color: var(--pill-text);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 6px 14px rgba(90, 64, 44, 0.18);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform var(--exit-duration) var(--exit-easing), 
+                       opacity var(--exit-duration) var(--exit-easing);
+        }
+
+        .start-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .blank-frame {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -44%) scale(0.96);
+            width: var(--card-w);
+            height: var(--card-h);
+            background: #F6F1E8;
+            border-radius: 22px;
+            box-shadow: 0 22px 44px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.5s var(--exit-easing), opacity 0.5s var(--exit-easing);
+            z-index: 0;
+            padding: 28px 26px;
+            overflow: hidden;
+            --cutout-y: 58%;
+        }
+
+        .blank-frame::before,
+        .blank-frame::after {
+            content: "";
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #EDE8E1;
+            top: var(--cutout-y);
+            transform: translateY(-50%);
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.02);
+            z-index: 1;
+            filter: blur(0px);
+        }
+
+        .blank-frame::before {
+            left: -32px;
+        }
+
+        .blank-frame::after {
+            right: -32px;
+        }
+
+        .blank-frame.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        .blank-frame.dismissed {
+            opacity: 0;
+            transform: translate(-50%, -54%) scale(0.98);
+            pointer-events: none;
+        }
+
+        .blend-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px) scale(0.98);
+            transition: opacity 0.5s var(--exit-easing), transform 0.5s var(--exit-easing);
+            z-index: 2;
+            color: #6B4B34;
+        }
+
+        .blend-screen.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        .blend-graphic {
+            position: relative;
+            width: 260px;
+            height: 320px;
+            transform: translateY(-6px);
+        }
+
+        .blend-title {
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            line-height: 1;
+            transition: color 0.25s ease, opacity 0.25s ease;
+        }
+
+        .blend-title.paused {
+            color: #bda895;
+            opacity: 0.8;
+        }
+
+        .blend-subtitle {
+            font-size: 14px;
+            color: #C28B64;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.25s ease, opacity 0.25s ease;
+        }
+
+        .blend-subtitle.paused {
+            color: #bda895;
+            opacity: 0.8;
+        }
+
+        .blend-progress {
+            width: 280px;
+            height: 6px;
+            background: #E9DED2;
+            border-radius: 999px;
+            overflow: hidden;
+            transition: opacity 0.25s ease;
+        }
+
+        .blend-progress.paused {
+            opacity: 0.45;
+        }
+
+        .blend-progress span {
+            display: block;
+            width: 20%;
+            height: 100%;
+            background: #6B4B34;
+            border-radius: 999px;
+            transition: width 0.45s ease, background-color 0.25s ease;
+        }
+
+        .blend-progress.paused span {
+            background: #927964;
+        }
+
+        .blend-btn {
+            margin-top: 6px;
+            padding: 12px 26px;
+            border-radius: 999px;
+            border: none;
+            background: #EFE7DB;
+            color: #9A7A63;
+            font-weight: 600;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 14px rgba(90, 64, 44, 0.12);
+            cursor: pointer;
+        }
+
+        .blend-pause {
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+
+        .blend-stop {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #D6B6A0;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ticket {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #6B4B34;
+            position: relative;
+            z-index: 2;
+        }
+
+        .ticket h3 {
+            margin: -5px 0 4px;
+            font-size: clamp(20px, 5vw, 26px);
+            font-weight: 700;
+        }
+
+        .ticket p {
+            margin: 0 0 10px;
+            color: #A37F68;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ticket .dot-line {
+            display: flex;
+            gap: 10px;
+            margin: 10px auto;
+            max-width: 220px;
+            justify-content: center;
+        }
+
+        .ticket .dot-line.mid {
+            margin-top: 18px;
+        }
+
+        .ticket .dot-line span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #9E7D67;
+            opacity: 0.8;
+        }
+
+        .ticket .rows {
+            width: 90%;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            row-gap: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 6px 0 4px;
+        }
+
+        .ticket .rows > div:nth-child(2n) {
+            text-align: right;
+        }
+
+        .ticket .tear {
+            margin: 24px 0 10px;
+            color: #A37F68;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .ticket .tear-line {
+            width: 90%;
+            height: 2px;
+            margin: 18px auto 0;
+            display: block;
+            opacity: 1;
+        }
+
+        .ticket .tear-line line {
+            stroke: #9E7D67;
+            stroke-width: 2;
+            stroke-dasharray: 2 1.333;
+        }
+
+        .ticket-top,
+        .ticket-bottom {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ticket .barcode {
+            width: 80%;
+            height: 42px;
+            margin: 10px 0;
+            display: block;
+            object-fit: stretch;
+            opacity: 0.9;
+            align-self: stretch;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+
+        .ticket .thanks {
+            margin-top: 8px;
+            padding-bottom: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #A37F68;
+        }
+
+        /* Exit animations - all synchronized */
+        .app-exit .flip-card {
+            transform: translate(-50%, -50%) translateY(var(--exit-distance));
+            opacity: 0;
+        }
+
+        .app-exit .flip-card.raised {
+            transform: translate(-50%, -56%) translateY(var(--exit-distance));
+        }
+
+        .app-exit .flip-card.lowered {
+            transform: translate(-50%, -50%) translateY(var(--exit-distance));
+        }
+
+        .app-exit .bottom-nav {
+            transform: translateX(-50%) translateY(var(--exit-distance)) scale(1.1);
+            opacity: 0;
+        }
+
+        .app-exit .top-title {
+            transform: translateX(-50%) translateY(var(--exit-distance));
+            opacity: 0;
+        }
+
+        .app-exit .study-track {
+            transform: translateX(-50%) translateY(var(--exit-distance));
+            opacity: 0;
+        }
+
+        .app-exit .start-btn {
+            transform: translateX(-50%) translateY(var(--exit-distance));
+            opacity: 0;
+        }
+
+        .app-exit .center-frame {
+            transform: translateY(var(--exit-distance));
+            opacity: 0;
+        }
+
+        .app-exit .center-frame.back {
+            transform: rotateY(180deg) translateZ(var(--exit-distance));
+            opacity: 0;
+        }
+
+        .center-frame h1 {
+            font-size: clamp(20px, 5vw, 25px);
+            margin: 24px 0 0;
+            color: var(--text);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .center-frame h2 {
+            font-size: clamp(11px, 3.2vw, 12px);
+            margin: 10px 0 0;
+            color: #C08055;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="blur-circle top-right" aria-hidden="true"></div>
+    <div class="blur-circle bottom-left" aria-hidden="true"></div>
+    <div class="page">
+        <div class="top-title">bloomera - Your Focus Perfumerie</div>
+        <div class="top-row">
+            <a class="top-btn left" href="#">
+                <i class="fa-solid fa-seedling"></i>
+                Parfumerie
+            </a>
+            <a class="top-btn right" href="#">
+                <i class="fa-solid fa-arrow-right-to-bracket" style="color: #f8f3efff;"></i>
+                Sign In
+            </a>
+        </div>
+        <div class="flip-card">
+            <div class="flip-inner" id="flipCard">
+                <div class="center-frame front">
+                    <h1>1. Choose Base</h1>
+                    <h2>what should it smell like</h2>
+                    <div class="center-divider" aria-hidden="true"></div>
+                    <div class="option-list" id="optionList">
+                        <a class="option-btn" href="#" data-choice="Vanilla" data-min="10">
+                            <div>
+                                <strong>Vanilla</strong>
+                                <span>10 min focus</span>
+                            </div>
+                            <i class="fa-solid fa-check check"></i>
+                        </a>
+                        <a class="option-btn" href="#" data-choice="Rose" data-min="25">
+                            <div>
+                                <strong>Rose</strong>
+                                <span>25 min focus</span>
+                            </div>
+                            <i class="fa-solid fa-check check"></i>
+                        </a>
+                        <a class="option-btn" href="#" data-choice="Musk" data-min="50">
+                            <div>
+                                <strong>Musk</strong>
+                                <span>50 min focus</span>
+                            </div>
+                            <i class="fa-solid fa-check check"></i>
+                        </a>
+                    </div>
+                    <div class="center-divider" aria-hidden="true"></div>
+                    <div class="circle-row" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="flip-hint" id="flipHintFront">
+                        <i class="fa-solid fa-angles-right"></i>
+                        Select an option to flip
+                    </div>
+                </div>
+                <div class="center-frame back">
+                    <h1>2. Choose Notes</h1>
+                    <h2>optional ofc</h2>
+                    <div class="center-divider" aria-hidden="true"></div>
+                    <div class="notes-list">
+                        <div class="note-item" data-min="5">
+                            <div>
+                                <strong>Citrus</strong>
+                                <small>+5 min focus</small>
+                            </div>
+                            <div class="note-controls">
+                                <button class="note-btn" type="button" data-action="minus">-</button>
+                                <span class="note-count">0</span>
+                                <button class="note-btn" type="button" data-action="plus">+</button>
+                            </div>
+                        </div>
+                        <div class="note-item" data-min="7">
+                            <div>
+                                <strong>Jasmine</strong>
+                                <small>+7 min focus</small>
+                            </div>
+                            <div class="note-controls">
+                                <button class="note-btn" type="button" data-action="minus">-</button>
+                                <span class="note-count">0</span>
+                                <button class="note-btn" type="button" data-action="plus">+</button>
+                            </div>
+                        </div>
+                        <div class="note-item" data-min="10">
+                            <div>
+                                <strong>Amber</strong>
+                                <small>+10 min focus</small>
+                            </div>
+                            <div class="note-controls">
+                                <button class="note-btn" type="button" data-action="minus">-</button>
+                                <span class="note-count">0</span>
+                                <button class="note-btn" type="button" data-action="plus">+</button>
+                            </div>
+                        </div>
+                        <div class="note-item" data-min="12">
+                            <div>
+                                <strong>Lavendar</strong>
+                                <small>+12 min focus</small>
+                            </div>
+                            <div class="note-controls">
+                                <button class="note-btn" type="button" data-action="minus">-</button>
+                                <span class="note-count">0</span>
+                                <button class="note-btn" type="button" data-action="plus">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="center-divider" aria-hidden="true"></div>
+                    <div class="circle-row" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="flip-hint left" id="flipHintBack">
+                        <i class="fa-solid fa-angles-left"></i>
+                        Drag left to go back
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="study-track">
+            <div class="row">
+                <span>study time:‎ </span>
+                <span id="studyTimeValue"> 0 min</span>
+            </div>
+        </div>
+        <a class="start-btn" id="startBtn" href="#">Start Blending</a>
+        <div class="blank-frame" id="blankFrame" aria-hidden="true">
+            <div class="ticket">
+                <div class="ticket-top">
+                    <h3>Order Slip</h3>
+                    <p>and how much u spent ;)</p>
+                    <div class="dot-line mid" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="rows">
+                        <div>Item:</div>
+                        <div id="receiptItem">Sprout</div>
+                        <div>Focus:</div>
+                        <div id="receiptFocus">10 min</div>
+                        <div>Total:</div>
+                        <div id="receiptTotal">$4</div>
+                    </div>
+                    <div class="dot-line" aria-hidden="true" style="margin-top: 20px;">
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+                <svg class="tear-line" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden="true">
+                    <line x1="0" y1="1" x2="100" y2="1" stroke="#9E7D67" stroke-width="2" stroke-dasharray="2 1.333" />
+                </svg>
+                <div class="ticket-bottom">
+                    <div class="tear">tap to close</div>
+                    <div class="dot-line" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <img class="barcode" src="barcode2.png" alt="Barcode" />
+                    <div class="dot-line" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="thanks">THANK YOU &lt;3</div>
+                </div>
+            </div>
+        </div>
+        <div class="blend-screen" id="blendScreen" aria-hidden="true">
+            <div class="blend-graphic" aria-hidden="true"></div>
+            <div class="blend-title" id="blendTimer">25:00</div>
+            <div class="blend-subtitle">blending in progress</div>
+            <div class="blend-progress" aria-hidden="true"><span></span></div>
+            <button class="blend-btn" type="button">
+                <span class="blend-pause">‖</span>
+                <span class="blend-label">pause blending</span>
+            </button>
+            <div class="blend-stop">stop blending</div>
+        </div>
+        <div class="notify-overlay" id="notifyOverlay" aria-hidden="true">
+            <div class="notify-dialog">
+                <div class="notify-close" id="notifyClose" aria-label="Close">×</div>
+                <div class="notify-title">Coming soon</div>
+                <div class="notify-text" id="notifyText">This section isn't ready yet. Want an email when it drops?</div>
+                <form class="notify-form" id="notifyForm">
+                    <input class="notify-input" id="notifyEmail" type="email" name="email" placeholder="you@example.com" required />
+                    <button class="notify-submit" type="submit">Notify me</button>
+                </form>
+                <div class="notify-note" id="notifyNote">We only email about launches, never spam.</div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-pill">
+                <div class="nav-highlight"></div>
+                <a class="nav-item active" href="perfumerie.html" data-page="perfumerie" data-highlight-width="116" data-highlight-offset="0">
+                    <i class="fa-solid fa-seedling"></i>
+                    Perfumerie
+                </a>
+                <a class="nav-item" href="collection.html" data-page="collection" data-highlight-width="106" data-highlight-offset="-12">
+                    <i class="fa-solid fa-layer-group"></i>
+                    Collection
+                </a>
+                <a class="nav-item" href="profile.html" data-page="profile" data-highlight-width="90" data-highlight-offset="-22">
+                    <i class="fa-solid fa-user"></i>
+                    Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // (your existing script remains unchanged – all functionality preserved)
+        const flipCard = document.getElementById("flipCard");
+        const flipContainer = document.querySelector(".flip-card");
+        const optionLists = document.querySelectorAll(".option-list");
+        const flipHintFront = document.getElementById("flipHintFront");
+        const flipHintBack = document.getElementById("flipHintBack");
+        const startBtn = document.getElementById("startBtn");
+        const blankFrame = document.getElementById("blankFrame");
+        const blendScreen = document.getElementById("blendScreen");
+        const receiptItem = document.getElementById("receiptItem");
+        const receiptFocus = document.getElementById("receiptFocus");
+        const receiptTotal = document.getElementById("receiptTotal");
+        const blendTimer = document.getElementById("blendTimer");
+        const blendSubtitle = document.querySelector(".blend-subtitle");
+        const blendProgress = document.querySelector(".blend-progress");
+        const blendProgressBar = document.querySelector(".blend-progress span");
+        const blendPauseBtn = document.querySelector(".blend-btn");
+        const blendStopBtn = document.querySelector(".blend-stop");
+        const navPill = document.querySelector(".nav-pill");
+        const navHighlight = document.querySelector(".nav-highlight");
+        const navItems = document.querySelectorAll(".nav-item");
+        const signInBtn = document.querySelector(".top-btn.right");
+        let activeNavItem = document.querySelector(".nav-item.active");
+        let navBounceTimeout = null;
+        const notesList = document.querySelector(".center-frame.back .notes-list");
+        const studyTimeValue = document.getElementById("studyTimeValue");
+        const studyTrack = document.querySelector(".study-track");
+        const notifyOverlay = document.getElementById("notifyOverlay");
+        const notifyText = document.getElementById("notifyText");
+        const notifyNote = document.getElementById("notifyNote");
+        const notifyEmail = document.getElementById("notifyEmail");
+        const notifyForm = document.getElementById("notifyForm");
+        const notifyClose = document.getElementById("notifyClose");
+        let canFlip = false;
+        let startX = null;
+        let isDragging = false;
+        let backInteracted = false;
+        let startUnlocked = false;
+        let timerId = null;
+        let timerState = { remaining: 0, total: 0, paused: false };
+
+        const computeTotalMinutes = () => {
+            const selectedBase = document.querySelector(".center-frame.front .option-btn.selected");
+            const baseMin = selectedBase ? Number(selectedBase.dataset.min || 0) : 0;
+            let notesMin = 0;
+            document.querySelectorAll(".note-item").forEach((item) => {
+                const perMin = Number(item.dataset.min || 0);
+                const countEl = item.querySelector(".note-count");
+                const count = Number(countEl?.textContent || 0);
+                notesMin += perMin * count;
+            });
+            const total = baseMin + notesMin;
+            if (studyTimeValue) {
+                studyTimeValue.textContent = `${total} min`;
+            }
+            return { total, baseMin, notesMin };
+        };
+
+        const formatTime = (seconds) => {
+            const totalSeconds = Math.max(0, Math.round(seconds));
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        };
+
+        const updateStartState = () => {
+            const frontSelected = document.querySelector(".center-frame.front .option-btn.selected");
+            const onBack = flipCard.classList.contains("is-flipped");
+            if (frontSelected && (backInteracted || onBack)) {
+                startUnlocked = true;
+            }
+            if (studyTrack) {
+                studyTrack.classList.toggle("show", Boolean(frontSelected));
+            }
+            if (startUnlocked) {
+                flipContainer.classList.add("raised");
+                startBtn.classList.add("show");
+                if (!onBack) {
+                    flipContainer.classList.add("lowered");
+                } else {
+                    flipContainer.classList.remove("lowered");
+                }
+            } else {
+                flipContainer.classList.remove("raised", "lowered");
+                startBtn.classList.remove("show");
+            }
+            computeTotalMinutes();
+        };
+
+        const updateTimerUI = () => {
+            const remaining = Math.max(0, timerState.remaining);
+            if (blendTimer) {
+                blendTimer.textContent = formatTime(remaining);
+                blendTimer.classList.toggle("paused", timerState.paused);
+            }
+            if (blendSubtitle) {
+                blendSubtitle.classList.toggle("paused", timerState.paused);
+            }
+            if (blendProgressBar && timerState.total > 0) {
+                const progress = 1 - remaining / timerState.total;
+                blendProgressBar.style.width = `${Math.min(100, Math.max(0, progress * 100))}%`;
+            }
+            if (blendProgress) {
+                blendProgress.classList.toggle("paused", timerState.paused);
+            }
+        };
+
+        const moveNavHighlight = (targetItem) => {
+            if (!navHighlight || !navPill || !targetItem) return;
+            
+            const pillRect = navPill.getBoundingClientRect();
+            const itemRect = targetItem.getBoundingClientRect();
+            const customWidth = parseFloat(targetItem.dataset.highlightWidth);
+            const highlightWidth = Number.isFinite(customWidth) && customWidth > 0 ? customWidth : itemRect.width;
+            const customOffset = parseFloat(targetItem.dataset.highlightOffset);
+            const extraOffset = Number.isFinite(customOffset) ? customOffset : 0;
+            
+            const baseLeft = itemRect.left - pillRect.left - 12;
+            const leftOffset = baseLeft + (itemRect.width - highlightWidth) / 2 + extraOffset;
+            
+            navHighlight.style.width = `${highlightWidth}px`;
+            navHighlight.style.transform = `translateX(${leftOffset}px)`;
+        };
+
+        const setNavHighlightTarget = (targetItem) => {
+            if (!targetItem) return;
+            navItems.forEach((el) => el.classList.remove("is-highlighted"));
+            targetItem.classList.add("is-highlighted");
+            moveNavHighlight(targetItem);
+        };
+
+        if (signInBtn) {
+            signInBtn.addEventListener("click", (event) => {
+                event.preventDefault();
+                openNotifyOverlay("signin");
+            });
+        }
+
+        const openNotifyOverlay = (page) => {
+            if (!notifyOverlay) return;
+            const label = page === "collection" ? "Collection" : page === "profile" ? "Profile" : page === "signin" ? "Sign In" : "This";
+            if (notifyText) {
+                notifyText.textContent = `${label} isn't ready yet. Want an email when it drops?`;
+            }
+            if (notifyNote) {
+                notifyNote.textContent = "We only email about launches, never spam.";
+            }
+            if (notifyEmail) {
+                notifyEmail.value = "";
+                setTimeout(() => notifyEmail.focus(), 50);
+            }
+            notifyOverlay.classList.add("show");
+            notifyOverlay.setAttribute("aria-hidden", "false");
+        };
+
+        const closeNotifyOverlay = () => {
+            if (!notifyOverlay) return;
+            notifyOverlay.classList.remove("show");
+            notifyOverlay.setAttribute("aria-hidden", "true");
+        };
+
+        const flipHintsDuringTurn = (showBack) => {
+            const targetShow = showBack ? flipHintBack : flipHintFront;
+            const targetHide = showBack ? flipHintFront : flipHintBack;
+            [flipHintFront, flipHintBack].forEach((el) => {
+                if (!el) return;
+                el.classList.add("fade-out");
+            });
+            setTimeout(() => {
+                if (targetHide) targetHide.classList.remove("ready");
+                if (targetShow) targetShow.classList.add("ready");
+                [flipHintFront, flipHintBack].forEach((el) => {
+                    if (!el) return;
+                    el.classList.remove("fade-out");
+                });
+            }, 520);
+        };
+
+        const startTimer = (totalMinutes) => {
+            const totalSeconds = Math.max(1, Math.round(totalMinutes * 60));
+            timerState = { remaining: totalSeconds, total: totalSeconds, paused: false };
+            if (timerId) clearInterval(timerId);
+            updateTimerUI();
+            timerId = setInterval(() => {
+                if (timerState.paused) return;
+                timerState.remaining -= 1;
+                updateTimerUI();
+                if (timerState.remaining <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                }
+            }, 1000);
+        };
+
+        optionLists.forEach((list) => {
+            list.addEventListener("click", (event) => {
+                const btn = event.target.closest(".option-btn");
+                if (!btn) return;
+                event.preventDefault();
+                list.querySelectorAll(".option-btn").forEach((item) => {
+                    item.classList.remove("selected");
+                });
+                btn.classList.add("selected");
+                if (!flipCard.classList.contains("is-flipped")) {
+                    canFlip = true;
+                    flipHintFront.classList.add("ready");
+                    flipHintFront.lastChild.textContent = "Drag right to flip";
+                    flipHintBack.classList.add("ready");
+                    flipContainer.classList.add("can-flip");
+                }
+                updateStartState();
+            });
+        });
+
+        navItems.forEach((item) => {
+            item.addEventListener("click", (event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                    return;
+                }
+                event.preventDefault();
+                const page = item.dataset.page;
+                const isHome = page === "perfumerie";
+                
+                if (!isHome) {
+                    if (navBounceTimeout) clearTimeout(navBounceTimeout);
+                    navItems.forEach((el) => el.classList.remove("bounce-active"));
+                    item.classList.add("bounce-active");
+                    setNavHighlightTarget(item);
+                    navBounceTimeout = setTimeout(() => {
+                        navItems.forEach((el) => el.classList.remove("bounce-active"));
+                        if (activeNavItem) setNavHighlightTarget(activeNavItem);
+                    }, 620);
+                    openNotifyOverlay(page);
+                    return;
+                }
+                navItems.forEach((el) => el.classList.remove("active"));
+                navItems.forEach((el) => el.classList.remove("bounce-active"));
+                item.classList.add("active");
+                activeNavItem = item;
+                setNavHighlightTarget(item);
+            });
+        });
+
+        const initialActiveNav = activeNavItem || document.querySelector(".nav-item.active");
+        if (initialActiveNav) setNavHighlightTarget(initialActiveNav);
+
+        if (notifyClose) {
+            notifyClose.addEventListener("click", closeNotifyOverlay);
+        }
+
+        if (notifyOverlay) {
+            notifyOverlay.addEventListener("click", (event) => {
+                if (event.target === notifyOverlay) closeNotifyOverlay();
+            });
+        }
+
+        if (notifyForm) {
+            notifyForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                if (notifyNote) notifyNote.textContent = "Thanks! We'll let you know as soon as it's live.";
+                setTimeout(closeNotifyOverlay, 900);
+            });
+        }
+
+        let resizeTimeout;
+        window.addEventListener("resize", () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const highlighted = document.querySelector(".nav-item.is-highlighted") || document.querySelector(".nav-item.active");
+                if (highlighted) setNavHighlightTarget(highlighted);
+            }, 100);
+        });
+
+        if (notesList) {
+            notesList.addEventListener("click", (event) => {
+                const btn = event.target.closest(".note-btn");
+                if (!btn) return;
+                event.preventDefault();
+                const controls = btn.closest(".note-controls");
+                const countEl = controls.querySelector(".note-count");
+                let count = Number(countEl.textContent) || 0;
+                if (btn.dataset.action === "plus") count += 1;
+                if (btn.dataset.action === "minus") count = Math.max(0, count - 1);
+                countEl.textContent = count;
+                backInteracted = true;
+                updateStartState();
+            });
+        }
+
+        flipContainer.addEventListener("pointerdown", (event) => {
+            if (!canFlip) return;
+            if (event.target.closest(".option-btn")) return;
+            isDragging = true;
+            startX = event.clientX;
+            flipContainer.classList.add("dragging");
+        });
+
+        flipContainer.addEventListener("pointermove", (event) => {
+            if (!isDragging || startX === null) return;
+            const deltaX = event.clientX - startX;
+            if (Math.abs(deltaX) < 80) return;
+            if (deltaX > 0 && !flipCard.classList.contains("is-flipped")) {
+                flipCard.classList.add("is-flipped");
+                flipContainer.classList.add("flipping");
+                setTimeout(() => flipContainer.classList.remove("flipping"), 520);
+                flipHintsDuringTurn(true);
+                updateStartState();
+            }
+            if (deltaX < 0 && flipCard.classList.contains("is-flipped")) {
+                flipCard.classList.remove("is-flipped");
+                flipContainer.classList.add("flipping");
+                setTimeout(() => flipContainer.classList.remove("flipping"), 520);
+                flipHintsDuringTurn(false);
+                updateStartState();
+            }
+            isDragging = false;
+            startX = null;
+            flipContainer.classList.remove("dragging");
+        });
+
+        const endDrag = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            startX = null;
+            flipContainer.classList.remove("dragging");
+        };
+
+        flipContainer.addEventListener("pointerup", endDrag);
+        flipContainer.addEventListener("pointercancel", endDrag);
+
+        startBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            flipHintFront.classList.remove("ready");
+            flipHintBack.classList.remove("ready");
+            document.body.classList.add("app-exit");
+
+            const selectedBase = document.querySelector(".center-frame.front .option-btn.selected");
+            const baseName = selectedBase?.dataset.choice || "Sprout";
+            const { total, baseMin, notesMin } = computeTotalMinutes();
+            const price = Math.max(3, Math.round(baseMin * 0.15 + notesMin * 0.2 + 3));
+
+            if (receiptItem) receiptItem.textContent = baseName;
+            if (receiptFocus) receiptFocus.textContent = `${total} min`;
+            if (receiptTotal) receiptTotal.textContent = `$${price}`;
+            startTimer(total || 25);
+            setTimeout(() => {
+                if (blankFrame) {
+                    blankFrame.classList.remove("dismissed");
+                    blankFrame.classList.add("show");
+                }
+                if (blendScreen) {
+                    blendScreen.classList.remove("show");
+                }
+            }, 650);
+        });
+
+        if (blendPauseBtn) {
+            blendPauseBtn.addEventListener("click", () => {
+                if (!timerId) return;
+                timerState.paused = !timerState.paused;
+                const pauseIcon = blendPauseBtn.querySelector(".blend-pause");
+                const label = blendPauseBtn.querySelector(".blend-label");
+                if (pauseIcon) {
+                    pauseIcon.textContent = timerState.paused ? "▶" : "‖";
+                }
+                if (label) {
+                    label.textContent = timerState.paused ? "resume blending" : "pause blending";
+                }
+                updateTimerUI();
+            });
+        }
+
+        if (blendStopBtn) {
+            blendStopBtn.addEventListener("click", () => {
+                if (timerId) {
+                    clearInterval(timerId);
+                    timerId = null;
+                }
+                timerState = { remaining: 0, total: timerState.total, paused: false };
+                const pauseIcon = blendPauseBtn?.querySelector(".blend-pause");
+                const label = blendPauseBtn?.querySelector(".blend-label");
+                if (pauseIcon) pauseIcon.textContent = "‖";
+                if (label) label.textContent = "pause blending";
+                if (blendProgressBar) blendProgressBar.style.width = "0%";
+                updateTimerUI();
+                if (blendTimer) blendTimer.textContent = "blend stopped";
+                setTimeout(() => {
+                    window.location.reload();
+                }, 900);
+            });
+        }
+
+        if (blankFrame) {
+            blankFrame.addEventListener("click", () => {
+                if (!blankFrame.classList.contains("show")) return;
+                blankFrame.classList.add("dismissed");
+                if (blendScreen) {
+                    setTimeout(() => {
+                        blendScreen.classList.add("show");
+                    }, 320);
+                }
+            });
+        }
+
+        window.addEventListener("load", () => {
+            flipContainer.classList.add("loaded");
+            
+            const activeItem = document.querySelector(".nav-item.active");
+            if (activeItem && navHighlight) {
+                moveNavHighlight(activeItem);
+            }
+        });
+    </script>
+</body>
+</html>
