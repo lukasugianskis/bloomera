@@ -62,8 +62,8 @@
 
 			.blur-circle {
 				position: absolute;
-				width: clamp(280px, 70vw, 520px);
-				height: clamp(280px, 70vw, 520px);
+				width: clamp(280px, min(70vw, 70vh), 520px);
+				height: clamp(280px, min(70vw, 70vh), 520px);
 				border-radius: 50%;
 				background: var(--glow);
 				filter: blur(clamp(15px, 3vw, 20px));
@@ -1060,16 +1060,16 @@
 
 			/* Exit animations - all synchronized */
 			.app-exit .flip-card {
-				transform: translate(-50%, -50%) scale(var(--ui-scale)) translateY(var(--exit-distance));
+				transform: translate(-50%, -50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 				opacity: 0;
 			}
 
 			.app-exit .flip-card.raised {
-				transform: translate(-50%, -56%) scale(var(--ui-scale)) translateY(var(--exit-distance));
+				transform: translate(-50%, -56%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 			}
 
 			.app-exit .flip-card.lowered {
-				transform: translate(-50%, -50%) scale(var(--ui-scale)) translateY(var(--exit-distance));
+				transform: translate(-50%, -50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 			}
 
 			.app-exit .bottom-nav {
@@ -1083,12 +1083,12 @@
 			}
 
 			.app-exit .study-track {
-				transform: translateX(-50%) scale(var(--ui-scale)) translateY(var(--exit-distance));
+				transform: translateX(-50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 				opacity: 0;
 			}
 
 			.app-exit .start-btn {
-				transform: translateX(-50%) scale(var(--ui-scale)) translateY(var(--exit-distance));
+				transform: translateX(-50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 				opacity: 0;
 			}
 
