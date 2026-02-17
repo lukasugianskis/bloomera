@@ -30,12 +30,14 @@
 				--exit-duration: 0.65s;
 				--exit-easing: cubic-bezier(0.4, 0.0, 0.2, 1);
 				--exit-distance: -30px;
-				--ui-scale-w: clamp(0.72, 100vw / 480, 1);
-				--ui-scale-h: clamp(0.72, 100vh / 820, 1);
+				--safe-area-bottom: env(safe-area-inset-bottom, 0px);
+				--safe-area-top: env(safe-area-inset-top, 0px);
+				--ui-scale-w: clamp(0.65, 100vw / 480, 1);
+				--ui-scale-h: clamp(0.65, 100vh / 820, 1);
 				--ui-scale: min(var(--ui-scale-w), var(--ui-scale-h));
-				--card-w: min(350px, 92vw);
-				--card-h: min(470px, 72vh);
-				--nav-bottom: clamp(14px, 4vh, 25px);
+				--card-w: min(350px, 90vw);
+				--card-h: min(470px, 68vh);
+				--nav-bottom: max(14px, calc(4vh + var(--safe-area-bottom)));
 			}
 
 			* {
@@ -51,19 +53,20 @@
 
 			body {
 				background: var(--bg);
-				overflow: hidden;
+				overflow: auto;
 				position: relative;
 				font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
 				color: var(--text);
+				min-height: 100%;
 			}
 
 			.blur-circle {
 				position: absolute;
-				width: clamp(360px, 80vw, 520px);
-				height: clamp(360px, 80vw, 520px);
+				width: clamp(280px, min(70vw, 70vh), 520px);
+				height: clamp(280px, min(70vw, 70vh), 520px);
 				border-radius: 50%;
 				background: var(--glow);
-				filter: blur(20px);
+				filter: blur(clamp(15px, 3vw, 20px));
 				opacity: 0.95;
 			}
 
@@ -113,11 +116,11 @@
 
 				.option-list,
 				.notes-list {
-					width: 86%;
+					width: 92%;
 				}
 
 				.bottom-nav {
-					transform: translateX(-50%) scale(1);
+					transform: translateX(-50%) scale(var(--ui-scale));
 				}
 
 				.nav-item {
@@ -159,6 +162,11 @@
 
 				.center-frame h1 {
 					margin-top: 18px;
+				}
+				
+				.blend-graphic {
+					width: min(220px, 55vw);
+					height: min(280px, 45vh);
 				}
 			}
 
@@ -241,7 +249,7 @@
 				position: fixed;
 				left: 50%;
 				bottom: var(--nav-bottom);
-				transform: translateX(-50%) scale(1.1);
+				transform: translateX(-50%) scale(var(--ui-scale));
 				transform-origin: center;
 				z-index: 1;
 				transition: transform var(--exit-duration) var(--exit-easing), 
@@ -415,7 +423,7 @@
 				position: fixed;
 				left: 50%;
 				top: 50%;
-				transform: translate(-50%, -44%);
+				transform: translate(-50%, -44%) scale(var(--ui-scale));
 				width: var(--card-w);
 				height: var(--card-h);
 				perspective: 1200px;
@@ -428,17 +436,17 @@
 			}
 
 			.flip-card.loaded {
-				transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%) scale(var(--ui-scale));
 				opacity: 1;
 				transition: transform 0.6s ease, opacity 0.6s ease;
 			}
 
 			.flip-card.raised {
-				transform: translate(-50%, -56%);
+				transform: translate(-50%, -56%) scale(var(--ui-scale));
 			}
 
 			.flip-card.lowered {
-				transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%) scale(var(--ui-scale));
 			}
 
 			.flip-card.can-flip {
@@ -474,6 +482,8 @@
 				backface-visibility: hidden;
 				padding-top: 4px;
 				height: 100%;
+				overflow-y: auto;
+				overflow-x: hidden;
 				transition: transform var(--exit-duration) var(--exit-easing), 
 				           opacity var(--exit-duration) var(--exit-easing);
 			}
@@ -687,7 +697,7 @@
 				position: fixed;
 				left: 50%;
 				bottom: calc(var(--nav-bottom) + 64px);
-				transform: translateX(-50%);
+				transform: translateX(-50%) scale(var(--ui-scale));
 				color: #9A7C66;
 				font-weight: 600;
 				font-size: 12px;
@@ -750,8 +760,8 @@
 			.start-btn {
 				position: fixed;
 				left: 50%;
-				top: calc(50% + (var(--card-h) / 2) + 18px);
-				transform: translateX(-50%);
+				bottom: calc(var(--nav-bottom) + 60px);
+				transform: translateX(-50%) scale(var(--ui-scale));
 				padding: 14px 20px;
 				border-radius: 12px;
 				background: var(--pill);
@@ -769,16 +779,17 @@
 			.start-btn.show {
 				opacity: 1;
 				pointer-events: auto;
-				transform: translateX(-50%) translateY(0);
+				transform: translateX(-50%) scale(var(--ui-scale));
 			}
 
 			.blank-frame {
 				position: fixed;
 				left: 50%;
 				top: 50%;
-				transform: translate(-50%, -44%) scale(0.96);
+				transform: translate(-50%, -44%) scale(calc(var(--ui-scale) * 0.96));
 				width: var(--card-w);
 				height: var(--card-h);
+				max-height: calc(100vh - 40px);
 				background: #F6F1E8;
 				border-radius: 22px;
 				box-shadow: 0 22px 44px rgba(0, 0, 0, 0.08);
@@ -787,7 +798,8 @@
 				transition: transform 0.5s var(--exit-easing), opacity 0.5s var(--exit-easing);
 				z-index: 0;
 				padding: 28px 26px;
-				overflow: hidden;
+				overflow-y: auto;
+				overflow-x: hidden;
 				--cutout-y: 58%;
 			}
 
@@ -840,6 +852,8 @@
 				transition: opacity 0.5s var(--exit-easing), transform 0.5s var(--exit-easing);
 				z-index: 2;
 				color: #6B4B34;
+				padding: 20px;
+				overflow-y: auto;
 			}
 
 			.blend-screen.show {
@@ -850,8 +864,8 @@
 
 			.blend-graphic {
 				position: relative;
-				width: 260px;
-				height: 320px;
+				width: min(260px, 60vw);
+				height: min(320px, 50vh);
 				transform: translateY(-6px);
 			}
 
@@ -1046,20 +1060,20 @@
 
 			/* Exit animations - all synchronized */
 			.app-exit .flip-card {
-				transform: translate(-50%, -50%) translateY(var(--exit-distance));
+				transform: translate(-50%, -50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 				opacity: 0;
 			}
 
 			.app-exit .flip-card.raised {
-				transform: translate(-50%, -56%) translateY(var(--exit-distance));
+				transform: translate(-50%, -56%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 			}
 
 			.app-exit .flip-card.lowered {
-				transform: translate(-50%, -50%) translateY(var(--exit-distance));
+				transform: translate(-50%, -50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 			}
 
 			.app-exit .bottom-nav {
-				transform: translateX(-50%) translateY(var(--exit-distance)) scale(1.1);
+				transform: translateX(-50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 				opacity: 0;
 			}
 
@@ -1069,12 +1083,12 @@
 			}
 
 			.app-exit .study-track {
-				transform: translateX(-50%) translateY(var(--exit-distance));
+				transform: translateX(-50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 				opacity: 0;
 			}
 
 			.app-exit .start-btn {
-				transform: translateX(-50%) translateY(var(--exit-distance));
+				transform: translateX(-50%) translateY(var(--exit-distance)) scale(var(--ui-scale));
 				opacity: 0;
 			}
 
